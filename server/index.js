@@ -322,7 +322,7 @@ app.post('/api/import', (req, res) => {
 
 const distPath = join(__dirname, '..', 'dist');
 app.use(express.static(distPath));
-app.get('{*path}', (req, res) => {
+app.get('*', (req, res) => {
   res.sendFile(join(distPath, 'index.html'));
 });
 
