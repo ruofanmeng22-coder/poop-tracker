@@ -14,6 +14,17 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    if (req.path.startsWith('/api')) {
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
+    }
+  });
+  next();
+});
+
 const dbPath = process.env.NODE_ENV === 'production'
   ? join('/tmp', 'poop-tracker.db')
   : join(__dirname, 'poop-tracker.db');
@@ -65,6 +76,7 @@ app.post('/api/users', (req, res) => {
 
   try {
     db.prepare('INSERT INTO users (id, name, avatar) VALUES (?, ?, ?)').run(id, name || '神秘屎者', finalAvatar);
+    console.log(`[USER] 新用户注册: ${name || '神秘屎者'} (ID: ${id}, Avatar: ${finalAvatar})`);
     res.json({ id, name: name || '神秘屎者', avatar: finalAvatar });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -129,6 +141,7 @@ app.post('/api/records', (req, res) => {
   try {
     stmt.run(id, userId, startTime, endTime, duration || 0, shape, color, mood, note, date);
     const record = db.prepare('SELECT r.*, u.name as userName, u.avatar as userAvatar FROM records r LEFT JOIN users u ON r.userId = u.id WHERE r.id = ?').get(id);
+    console.log(`[RECORD] 用户 ${record.userName || userId} 打卡: ${date} 用时${duration || 0}秒`);
     res.json({ success: true, record });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -265,6 +278,19 @@ app.get('/api/leaderboard', (req, res) => {
   res.json(leaderboard);
 });
 
+app.get('/api/admin/users', (req, res) => {
+  const users = db.prepare(`
+    SELECT u.id, u.name, u.avatar, u.createdAt,
+           COUNT(r.id) as recordCount,
+           COALESCE(SUM(r.duration), 0) as totalDuration
+    FROM users u
+    LEFT JOIN records r ON u.id = r.userId
+    GROUP BY u.id
+    ORDER BY u.createdAt DESC
+  `).all();
+  res.json(users);
+});
+
 app.get('/api/achievements', (req, res) => {
   const { userId } = req.query;
   if (!userId) return res.json([]);
@@ -279,6 +305,7 @@ app.post('/api/achievements', (req, res) => {
 
   try {
     db.prepare('INSERT OR REPLACE INTO achievements (id, userId, unlockedAt) VALUES (?, ?, ?)').run(id, userId, unlockedAt);
+    console.log(`[ACHIEVEMENT] 用户 ${userId} 解锁成就: ${id}`);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
