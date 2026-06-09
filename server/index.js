@@ -190,7 +190,7 @@ app.get('/api/stats', (req, res) => {
   const streak = calculateStreak(userId);
 
   const hourDistribution = db.prepare(`
-    SELECT CAST(strftime('%H', startTime / 1000, 'unixepoch') AS INTEGER) as hour, COUNT(*) as count
+    SELECT CAST(strftime('%H', startTime / 1000, 'unixepoch', '+8 hours') AS INTEGER) as hour, COUNT(*) as count
     FROM records WHERE 1=1${userFilter}
     GROUP BY hour ORDER BY hour
   `).all(...params);
