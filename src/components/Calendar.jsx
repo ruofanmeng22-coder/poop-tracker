@@ -52,14 +52,12 @@ export default function Calendar({ userId }) {
       </div>
       <div className="calendar-grid">
         {calendarDays.map((day, i) => (
-          <div key={i} className={`cal-day ${!day.day ? 'empty' : ''} ${day.dateStr === today ? 'today' : ''} ${day.dateStr === selectedDate ? 'selected' : ''}`} onClick={() => day.day && setSelectedDate(day.dateStr)}>
+          <div key={i} className={`cal-day ${!day.day ? 'empty' : ''} ${day.dateStr === today ? 'today' : ''} ${day.dateStr === selectedDate ? 'selected' : ''}`} onClick={() => day.day && setSelectedDate(day.dateStr === selectedDate ? null : day.dateStr)}>
             {day.day && (
               <>
                 <span className="day-number">{day.day}</span>
                 {day.count > 0 && (
-                  <div className="day-indicator" style={{ background: getHeatColor(day.count) }}>
-                    {day.count > 1 && <span className="day-count">{day.count}</span>}
-                  </div>
+                  <div className="day-indicator" style={{ background: getHeatColor(day.count) }}></div>
                 )}
               </>
             )}

@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { saveRecord as apiSaveRecord, generateId, formatDuration, getRecords, getAchievements, unlockAchievement, getStats } from '../utils/api';
 import { EXERCISE_TYPES, INTENSITY_LEVELS, MOODS, ACHIEVEMENTS } from '../utils/achievements';
 
-export default function CheckIn({ userId, onRecord, greeting }) {
+export default function CheckIn({ userId, onRecord, greeting, onTrackingChange }) {
   const [isTracking, setIsTracking] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [elapsed, setElapsed] = useState(0);
-  const [elapsedMs, setElapsedMs] = useState(0);
   const [showDetail, setShowDetail] = useState(false);
   const [currentRecord, setCurrentRecord] = useState(null);
   const [exerciseType, setExerciseType] = useState(1);
@@ -22,11 +21,25 @@ export default function CheckIn({ userId, onRecord, greeting }) {
       timerRef.current = setInterval(() => {
         const diff = Date.now() - startTime;
         setElapsed(Math.floor(diff / 1000));
-        setElapsedMs(Math.floor((diff % 1000) / 10));
-      }, 50);
+      }, 100);
     }
     return () => clearInterval(timerRef.current);
   }, [isTracking, startTime]);
+
+  useEffect(() => {
+    onTrackingChange?.(isTracking);
+  }, [isTracking, onTrackingChange]);
+
+  useEffect(() => {
+    const onBeforeUnload = (e) => {
+      if (isTracking) {
+        e.preventDefault();
+        e.returnValue = '运动计时中，确定要离开吗？';
+      }
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [isTracking]);
 
   const handleStart = () => {
     const now = Date.now();
@@ -132,11 +145,15 @@ export default function CheckIn({ userId, onRecord, greeting }) {
       {!isTracking && !showDetail && (
         <div className="check-in-idle">
           <div className="poop-mascot">
-            <div className="poop-emoji-big">💪</div>
+            <div className="poop-emoji-big">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#43A047" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
             <div className="poop-speech">{greeting || '该练了！'}</div>
           </div>
           <button className="btn-start" onClick={handleStart}>
-            <span className="btn-icon">🏋️</span>
+            <span className="btn-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </span>
             <span className="btn-text">开始打卡</span>
           </button>
           <div className="check-in-hint">点击开始计时你的运动时间</div>
@@ -145,17 +162,50 @@ export default function CheckIn({ userId, onRecord, greeting }) {
 
       {isTracking && (
         <div className="check-in-tracking">
-          <div className="tracking-animation">
-            <div className="poop-floating">💪</div>
-            <div className="poop-floating delay-1">🔥</div>
-            <div className="poop-floating delay-2">💦</div>
-          </div>
-          <div className="timer-display">
-            <div className="timer-label">⏱️ 运动进行中...</div>
-            <div className="timer-value">{formatDuration(elapsed)}<span className="timer-ms">.{String(elapsedMs).padStart(2, '0')}</span></div>
+          <div className="dashboard-card">
+            <div className="dashboard-header">
+              <span className="dashboard-pulse"></span>
+              <span className="dashboard-status">运动进行中</span>
+            </div>
+            <div className="timer-ring">
+              <svg className="timer-ring-svg" viewBox="0 0 200 200">
+                <defs>
+                  <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#43A047" />
+                    <stop offset="100%" stopColor="#66BB6A" />
+                  </linearGradient>
+                </defs>
+                <circle className="timer-ring-bg" cx="100" cy="100" r="90" />
+                <circle
+                  className="timer-ring-progress"
+                  cx="100" cy="100" r="90"
+                  strokeDasharray={565}
+                  strokeDashoffset={565 - ((elapsed % 60) / 60) * 565}
+                />
+              </svg>
+              <div className="timer-ring-inner">
+                <div className="timer-value">{formatDuration(elapsed)}</div>
+              </div>
+            </div>
+            <div className="dashboard-metrics">
+              <div className="metric">
+                <div className="metric-value">{Math.floor(elapsed / 60)}</div>
+                <div className="metric-label">分钟</div>
+              </div>
+              <div className="metric">
+                <div className="metric-value">{elapsed % 60}</div>
+                <div className="metric-label">秒</div>
+              </div>
+              <div className="metric">
+                <div className="metric-value">~{Math.floor(elapsed * 0.15)}</div>
+                <div className="metric-label">千卡</div>
+              </div>
+            </div>
           </div>
           <button className="btn-stop" onClick={handleStop}>
-            <span className="btn-icon">✅</span>
+            <span className="btn-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+            </span>
             <span className="btn-text">结束打卡</span>
           </button>
         </div>
