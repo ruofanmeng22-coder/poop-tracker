@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { saveRecord as apiSaveRecord, generateId, formatDuration, getRecords, getAchievements, unlockAchievement } from '../utils/api';
 import { BRISTOL_SCALE, POOP_COLORS, MOODS, ACHIEVEMENTS } from '../utils/achievements';
 
-export default function CheckIn({ userId, onRecord }) {
+export default function CheckIn({ userId, onRecord, greeting }) {
   const [isTracking, setIsTracking] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [elapsed, setElapsed] = useState(0);
@@ -14,6 +14,7 @@ export default function CheckIn({ userId, onRecord }) {
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [newAchievements, setNewAchievements] = useState([]);
+  const [pulseKey, setPulseKey] = useState(0);
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -24,6 +25,13 @@ export default function CheckIn({ userId, onRecord }) {
     }
     return () => clearInterval(timerRef.current);
   }, [isTracking, startTime]);
+
+  useEffect(() => {
+    if (isTracking) {
+      const interval = setInterval(() => setPulseKey(k => k + 1), 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isTracking]);
 
   const handleStart = () => {
     const now = Date.now();
@@ -95,6 +103,15 @@ export default function CheckIn({ userId, onRecord }) {
   const handleCancel = () => { setShowDetail(false); setCurrentRecord(null); };
   const dismissAchievement = () => { setNewAchievements([]); };
 
+  const getDurationComment = (seconds) => {
+    if (seconds < 60) return '⚡ 速战速决！';
+    if (seconds < 180) return '✨ 完美节奏！';
+    if (seconds < 300) return '👌 稳稳当当';
+    if (seconds < 600) return '🧘 慢慢来不急';
+    if (seconds < 1800) return '📖 带了手机吧？';
+    return '🤯 你没事吧？';
+  };
+
   return (
     <div className="check-in">
       {newAchievements.length > 0 && (
@@ -119,11 +136,11 @@ export default function CheckIn({ userId, onRecord }) {
       {!isTracking && !showDetail && (
         <div className="check-in-idle">
           <div className="poop-mascot">
-            <div className="poop-emoji-big">💩</div>
-            <div className="poop-speech">该拉屎啦！</div>
+            <div className="poop-emoji-big">🚽</div>
+            <div className="poop-speech">{greeting || '该蹲坑啦！'}</div>
           </div>
           <button className="btn-start" onClick={handleStart}>
-            <span className="btn-icon">🚽</span>
+            <span className="btn-icon">💩</span>
             <span className="btn-text">开始打卡</span>
           </button>
           <div className="check-in-hint">点击开始计时你的如厕时间</div>
@@ -134,12 +151,12 @@ export default function CheckIn({ userId, onRecord }) {
         <div className="check-in-tracking">
           <div className="tracking-animation">
             <div className="poop-floating">💩</div>
-            <div className="poop-floating delay-1">💩</div>
-            <div className="poop-floating delay-2">💩</div>
+            <div className="poop-floating delay-1">💨</div>
+            <div className="poop-floating delay-2">🧻</div>
           </div>
           <div className="timer-display">
             <div className="timer-label">⏱️ 正在进行中...</div>
-            <div className="timer-value">{formatDuration(elapsed)}</div>
+            <div className="timer-value" key={pulseKey}>{formatDuration(elapsed)}</div>
           </div>
           <button className="btn-stop" onClick={handleStop}>
             <span className="btn-icon">✅</span>
@@ -156,6 +173,7 @@ export default function CheckIn({ userId, onRecord }) {
           </div>
           <div className="detail-duration">
             用时 <strong>{formatDuration(currentRecord.duration)}</strong>
+            <div className="detail-comment">{getDurationComment(currentRecord.duration)}</div>
           </div>
 
           <div className="detail-section">
@@ -197,7 +215,7 @@ export default function CheckIn({ userId, onRecord }) {
 
           <div className="detail-section">
             <div className="detail-section-title">📝 备注</div>
-            <textarea className="note-input" value={note} onChange={e => setNote(e.target.value)} placeholder="今天拉屎有什么特别的吗？吃了什么？..." rows={3} />
+            <textarea className="note-input" value={note} onChange={e => setNote(e.target.value)} placeholder="今天蹲坑有什么特别的吗？吃了什么？..." rows={3} />
           </div>
 
           <div className="detail-actions">

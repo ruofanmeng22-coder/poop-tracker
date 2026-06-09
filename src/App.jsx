@@ -5,7 +5,6 @@ import Statistics from './components/Statistics'
 import Achievements from './components/Achievements'
 import Leaderboard from './components/Leaderboard'
 import { getCurrentUserId, getUser, createUser, getAllUsers, setCurrentUserId } from './utils/api'
-import './App.css'
 
 const TABS = [
   { id: 'checkin', label: '打卡', icon: '🚽' },
@@ -17,6 +16,8 @@ const TABS = [
 
 const AVATARS = ['💩', '🚽', '👑', '🌟', '🔥', '😎', '💪', '🎯', '🦊', '🐱', '🐶', '🐼']
 
+const GREETINGS = ['该蹲坑啦！', '肚子有感觉没？', '是时候了！', '走，去厕所！', '蹲一个？', '冲鸭！去拉屎！']
+
 function App() {
   const [activeTab, setActiveTab] = useState('checkin')
   const [refreshKey, setRefreshKey] = useState(0)
@@ -26,9 +27,11 @@ function App() {
   const [setupAvatar, setSetupAvatar] = useState('💩')
   const [existingUsers, setExistingUsers] = useState([])
   const [showUserSwitch, setShowUserSwitch] = useState(false)
+  const [greeting, setGreeting] = useState(GREETINGS[0])
 
   useEffect(() => {
     initUser()
+    setGreeting(GREETINGS[Math.floor(Math.random() * GREETINGS.length)])
   }, [])
 
   async function initUser() {
@@ -88,8 +91,8 @@ function App() {
       <div className="app">
         <div className="user-setup-page">
           <div className="setup-hero">
-            <div className="setup-emoji">💩</div>
-            <h1 className="setup-title">拉屎打卡</h1>
+            <div className="setup-emoji">🚽</div>
+            <h1 className="setup-title">蹲坑日记</h1>
             <p className="setup-subtitle">记录每一次畅快体验</p>
           </div>
 
@@ -139,7 +142,7 @@ function App() {
           </div>
 
           <button className="setup-go-btn" onClick={handleCreateUser}>
-            🚀 开始打卡
+            🚀 开始蹲坑
           </button>
         </div>
       </div>
@@ -152,8 +155,8 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="app-logo">
-          <span className="logo-emoji">💩</span>
-          <span className="logo-text">拉屎打卡</span>
+          <span className="logo-emoji">🚽</span>
+          <span className="logo-text">蹲坑日记</span>
         </div>
         <button className="header-user-btn" onClick={() => setShowUserSwitch(!showUserSwitch)}>
           <span className="header-avatar">{currentUser.avatar}</span>
@@ -182,7 +185,7 @@ function App() {
       )}
 
       <main className="app-content">
-        {activeTab === 'checkin' && <CheckIn userId={currentUser.id} onRecord={handleRecord} />}
+        {activeTab === 'checkin' && <CheckIn userId={currentUser.id} onRecord={handleRecord} greeting={greeting} />}
         {activeTab === 'calendar' && <Calendar userId={currentUser.id} key={refreshKey} />}
         {activeTab === 'stats' && <Statistics userId={currentUser.id} key={refreshKey} />}
         {activeTab === 'achievements' && <Achievements userId={currentUser.id} key={refreshKey} />}
