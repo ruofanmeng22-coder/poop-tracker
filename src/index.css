@@ -568,7 +568,7 @@ body {
 }
 
 .timer-value {
-  font-size: 56px;
+  font-size: 48px;
   font-weight: 900;
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
   -webkit-background-clip: text;
@@ -576,12 +576,12 @@ body {
   background-clip: text;
   font-variant-numeric: tabular-nums;
   letter-spacing: 2px;
-  animation: timerPulse 2s ease-in-out infinite;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
 }
 
-@keyframes timerPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
+.timer-ms {
+  font-size: 28px;
+  opacity: 0.7;
 }
 
 .btn-stop {

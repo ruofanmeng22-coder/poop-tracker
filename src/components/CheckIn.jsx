@@ -6,6 +6,7 @@ export default function CheckIn({ userId, onRecord, greeting }) {
   const [isTracking, setIsTracking] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [elapsed, setElapsed] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const [showDetail, setShowDetail] = useState(false);
   const [currentRecord, setCurrentRecord] = useState(null);
   const [shape, setShape] = useState(4);
@@ -14,24 +15,18 @@ export default function CheckIn({ userId, onRecord, greeting }) {
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
   const [newAchievements, setNewAchievements] = useState([]);
-  const [pulseKey, setPulseKey] = useState(0);
   const timerRef = useRef(null);
 
   useEffect(() => {
     if (isTracking) {
       timerRef.current = setInterval(() => {
-        setElapsed(Math.floor((Date.now() - startTime) / 1000));
-      }, 1000);
+        const diff = Date.now() - startTime;
+        setElapsed(Math.floor(diff / 1000));
+        setElapsedMs(Math.floor((diff % 1000) / 10));
+      }, 50);
     }
     return () => clearInterval(timerRef.current);
   }, [isTracking, startTime]);
-
-  useEffect(() => {
-    if (isTracking) {
-      const interval = setInterval(() => setPulseKey(k => k + 1), 2000);
-      return () => clearInterval(interval);
-    }
-  }, [isTracking]);
 
   const handleStart = () => {
     const now = Date.now();
@@ -156,7 +151,7 @@ export default function CheckIn({ userId, onRecord, greeting }) {
           </div>
           <div className="timer-display">
             <div className="timer-label">⏱️ 正在进行中...</div>
-            <div className="timer-value" key={pulseKey}>{formatDuration(elapsed)}</div>
+            <div className="timer-value">{formatDuration(elapsed)}<span className="timer-ms">.{String(elapsedMs).padStart(2, '0')}</span></div>
           </div>
           <button className="btn-stop" onClick={handleStop}>
             <span className="btn-icon">✅</span>
