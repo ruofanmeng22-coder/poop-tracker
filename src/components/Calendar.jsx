@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { getRecords } from '../utils/api';
+import { EXERCISE_TYPES, MOODS } from '../utils/achievements';
 
 export default function Calendar({ userId }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -33,10 +34,10 @@ export default function Calendar({ userId }) {
 
   const getHeatColor = (count) => {
     if (count === 0) return 'transparent';
-    if (count === 1) return '#A1887F';
-    if (count === 2) return '#8D6E63';
-    if (count === 3) return '#795548';
-    return '#5D4037';
+    if (count === 1) return '#A5D6A7';
+    if (count === 2) return '#66BB6A';
+    if (count === 3) return '#43A047';
+    return '#2E7D32';
   };
 
   return (
@@ -68,7 +69,7 @@ export default function Calendar({ userId }) {
       <div className="calendar-legend">
         <span className="legend-label">少</span>
         <div className="legend-colors">
-          {[ '#D7CCC8', '#A1887F', '#8D6E63', '#795548', '#5D4037'].map(c => <div key={c} className="legend-block" style={{ background: c }}></div>)}
+          {['#E8F5E9', '#A5D6A7', '#66BB6A', '#43A047', '#2E7D32'].map(c => <div key={c} className="legend-block" style={{ background: c }}></div>)}
         </div>
         <span className="legend-label">多</span>
       </div>
@@ -79,19 +80,23 @@ export default function Calendar({ userId }) {
             <div className="no-records">这天没有打卡记录 💨</div>
           ) : (
             <div className="selected-records">
-              {selectedRecords.map((r, i) => (
-                <div key={r.id} className="record-card">
-                  <div className="record-card-header">
-                    <span>第{i + 1}次</span>
-                    <span className="record-duration">⏱️ {r.duration ? `${Math.floor(r.duration / 60)}分${r.duration % 60}秒` : '未知'}</span>
+              {selectedRecords.map((r, i) => {
+                const exerciseInfo = EXERCISE_TYPES[r.shape - 1];
+                const moodInfo = MOODS.find(m => m.value === r.mood);
+                return (
+                  <div key={r.id} className="record-card">
+                    <div className="record-card-header">
+                      <span>第{i + 1}次</span>
+                      <span className="record-duration">⏱️ {r.duration ? `${Math.floor(r.duration / 60)}分${r.duration % 60}秒` : '未知'}</span>
+                    </div>
+                    <div className="record-card-details">
+                      {r.shape && <span>{exerciseInfo?.emoji || '🎯'} {exerciseInfo?.label || '其他'}</span>}
+                      {r.mood && <span>{moodInfo?.emoji || '😐'}</span>}
+                      {r.note && <div className="record-note">📝 {r.note}</div>}
+                    </div>
                   </div>
-                  <div className="record-card-details">
-                    {r.shape && <span>💩 布里斯托{r.shape}型</span>}
-                    {r.mood && <span>{r.mood === 'great' ? '😎' : r.mood === 'good' ? '😊' : r.mood === 'normal' ? '😐' : r.mood === 'struggle' ? '😣' : '😭'}</span>}
-                    {r.note && <div className="record-note">📝 {r.note}</div>}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

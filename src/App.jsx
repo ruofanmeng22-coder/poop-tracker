@@ -7,16 +7,16 @@ import Leaderboard from './components/Leaderboard'
 import { getCurrentUserId, getUser, createUser, getAllUsers, setCurrentUserId } from './utils/api'
 
 const TABS = [
-  { id: 'checkin', label: '打卡', icon: '🚽' },
+  { id: 'checkin', label: '打卡', icon: '💪' },
   { id: 'calendar', label: '日历', icon: '📅' },
   { id: 'stats', label: '统计', icon: '📊' },
   { id: 'achievements', label: '成就', icon: '🏆' },
   { id: 'leaderboard', label: '排行', icon: '🥇' },
 ]
 
-const AVATARS = ['💩', '🚽', '👑', '🌟', '🔥', '😎', '💪', '🎯', '🦊', '🐱', '🐶', '🐼']
+const AVATARS = ['💪', '🏋️', '🏃', '🧘', '🏊', '🚴', '🔥', '😎', '🦊', '🐱', '🐶', '🐼']
 
-const GREETINGS = ['该蹲坑啦！', '肚子有感觉没？', '是时候了！', '走，去厕所！', '蹲一个？', '冲鸭！去拉屎！']
+const GREETINGS = ['该练了！', '今天动了吗？', '冲鸭！去运动！', '别躺了，练起来！', '燃烧吧卡路里！', '动一动更健康！']
 
 function App() {
   const [activeTab, setActiveTab] = useState('checkin')
@@ -24,7 +24,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null)
   const [showUserSetup, setShowUserSetup] = useState(false)
   const [setupName, setSetupName] = useState('')
-  const [setupAvatar, setSetupAvatar] = useState('💩')
+  const [setupAvatar, setSetupAvatar] = useState('💪')
   const [existingUsers, setExistingUsers] = useState([])
   const [showUserSwitch, setShowUserSwitch] = useState(false)
   const [greeting, setGreeting] = useState(GREETINGS[0])
@@ -52,7 +52,7 @@ function App() {
   }
 
   async function handleCreateUser() {
-    const name = setupName.trim() || '神秘屎者'
+    const name = setupName.trim() || '健身达人'
     const user = await createUser(name, setupAvatar)
     setCurrentUser(user)
     setShowUserSetup(false)
@@ -77,7 +77,7 @@ function App() {
     const users = await getAllUsers()
     setExistingUsers(users)
     setSetupName('')
-    setSetupAvatar('💩')
+    setSetupAvatar('💪')
     setShowUserSwitch(false)
     setShowUserSetup(true)
   }
@@ -91,9 +91,9 @@ function App() {
       <div className="app">
         <div className="user-setup-page">
           <div className="setup-hero">
-            <div className="setup-emoji">🚽</div>
-            <h1 className="setup-title">蹲坑日记</h1>
-            <p className="setup-subtitle">记录每一次畅快体验</p>
+            <div className="setup-emoji">💪</div>
+            <h1 className="setup-title">练了么</h1>
+            <p className="setup-subtitle">记录每一次汗水与坚持</p>
           </div>
 
           {existingUsers.length > 0 && (
@@ -142,7 +142,7 @@ function App() {
           </div>
 
           <button className="setup-go-btn" onClick={handleCreateUser}>
-            🚀 开始蹲坑
+            🚀 开始运动
           </button>
         </div>
       </div>
@@ -155,8 +155,8 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="app-logo">
-          <span className="logo-emoji">🚽</span>
-          <span className="logo-text">蹲坑日记</span>
+          <span className="logo-emoji">💪</span>
+          <span className="logo-text">练了么</span>
         </div>
         <button className="header-user-btn" onClick={() => setShowUserSwitch(!showUserSwitch)}>
           <span className="header-avatar">{currentUser.avatar}</span>

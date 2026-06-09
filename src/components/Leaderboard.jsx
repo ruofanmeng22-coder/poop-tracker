@@ -13,7 +13,7 @@ export default function Leaderboard({ currentUserId }) {
   return (
     <div className="leaderboard">
       <div className="leaderboard-title">🏆 排行榜</div>
-      <div className="leaderboard-subtitle">看看谁是最强屎者！</div>
+      <div className="leaderboard-subtitle">看看谁是最强健身达人！</div>
 
       {leaderboard.length === 0 ? (
         <div className="leaderboard-empty">
@@ -46,10 +46,10 @@ export default function Leaderboard({ currentUserId }) {
       )}
 
       <div className="leaderboard-fun-facts">
-        <div className="fun-fact-title">🤓 冷知识</div>
-        <div className="fun-fact">人一生平均花费 <strong>3年</strong> 的时间在厕所里 🚽</div>
-        <div className="fun-fact">健康的排便时间应该在 <strong>3-5分钟</strong> ⏱️</div>
-        <div className="fun-fact">每天排便 <strong>1-3次</strong> 或每2-3天一次都属正常 📊</div>
+        <div className="fun-fact-title">🤓 健身冷知识</div>
+        <div className="fun-fact">每周运动 <strong>150分钟</strong> 就能显著改善健康 💪</div>
+        <div className="fun-fact">力量训练后肌肉需要 <strong>48小时</strong> 恢复 🏋️</div>
+        <div className="fun-fact">运动时听音乐可以提升 <strong>15%</strong> 的运动表现 🎵</div>
       </div>
     </div>
   );

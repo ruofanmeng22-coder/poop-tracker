@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getStats, formatDuration } from '../utils/api';
-import { BRISTOL_SCALE, MOODS } from '../utils/achievements';
+import { EXERCISE_TYPES, MOODS } from '../utils/achievements';
 
 export default function Statistics({ userId }) {
   const [stats, setStats] = useState(null);
@@ -28,7 +28,7 @@ export default function Statistics({ userId }) {
   return (
     <div className="statistics">
       <div className="stats-overview">
-        <div className="stat-card highlight"><div className="stat-value">{stats.total}</div><div className="stat-label">累计打卡</div><div className="stat-emoji">💩</div></div>
+        <div className="stat-card highlight"><div className="stat-value">{stats.total}</div><div className="stat-label">累计打卡</div><div className="stat-emoji">🏋️</div></div>
         <div className="stat-card"><div className="stat-value">{stats.streak}</div><div className="stat-label">连续天数</div><div className="stat-emoji">🔥</div></div>
         <div className="stat-card"><div className="stat-value">{stats.todayCount}</div><div className="stat-label">今日打卡</div><div className="stat-emoji">📅</div></div>
         <div className="stat-card"><div className="stat-value">{stats.thisWeekCount}</div><div className="stat-label">本周打卡</div><div className="stat-emoji">📆</div></div>
@@ -49,7 +49,7 @@ export default function Statistics({ userId }) {
         <div className="hour-chart">
           {hourCounts.map((count, hour) => (
             <div key={hour} className="hour-bar-wrapper">
-              <div className="hour-bar" style={{ height: maxHourCount > 0 ? `${(count / maxHourCount) * 100}%` : '0%', background: count === maxHourCount && count > 0 ? '#795548' : '#A1887F' }}>
+              <div className="hour-bar" style={{ height: maxHourCount > 0 ? `${(count / maxHourCount) * 100}%` : '0%', background: count === maxHourCount && count > 0 ? 'var(--primary)' : 'var(--primary-light)' }}>
                 {count > 0 && <span className="hour-bar-count">{count}</span>}
               </div>
               <span className="hour-label">{hour}</span>
@@ -64,7 +64,7 @@ export default function Statistics({ userId }) {
         <div className="weekday-chart">
           {['周日', '周一', '周二', '周三', '周四', '周五', '周六'].map((day, i) => (
             <div key={i} className="weekday-bar-wrapper">
-              <div className="weekday-bar" style={{ height: maxWeekDayCount > 0 ? `${(weekDayCounts[i] / maxWeekDayCount) * 100}%` : '0%', background: weekDayCounts[i] === maxWeekDayCount && weekDayCounts[i] > 0 ? '#795548' : '#A1887F' }}>
+              <div className="weekday-bar" style={{ height: maxWeekDayCount > 0 ? `${(weekDayCounts[i] / maxWeekDayCount) * 100}%` : '0%', background: weekDayCounts[i] === maxWeekDayCount && weekDayCounts[i] > 0 ? 'var(--primary)' : 'var(--primary-light)' }}>
                 {weekDayCounts[i] > 0 && <span className="weekday-bar-count">{weekDayCounts[i]}</span>}
               </div>
               <span className="weekday-label">{day}</span>
@@ -74,13 +74,13 @@ export default function Statistics({ userId }) {
       </div>
 
       <div className="stats-section">
-        <div className="stats-section-title">💩 形状分布</div>
+        <div className="stats-section-title">🏃 运动类型分布</div>
         <div className="shape-stats">
           {stats.shapeDistribution.map(({ shape, count }) => {
-            const info = BRISTOL_SCALE[shape - 1];
+            const info = EXERCISE_TYPES[shape - 1];
             return (
               <div key={shape} className="shape-stat-row">
-                <span className="shape-stat-emoji">{info?.emoji || '💩'}</span>
+                <span className="shape-stat-emoji">{info?.emoji || '🎯'}</span>
                 <span className="shape-stat-label">{info?.label || `${shape}型`}</span>
                 <div className="shape-stat-bar-bg"><div className="shape-stat-bar" style={{ width: `${(count / stats.total) * 100}%` }}></div></div>
                 <span className="shape-stat-count">{count}次</span>
@@ -91,7 +91,7 @@ export default function Statistics({ userId }) {
       </div>
 
       <div className="stats-section">
-        <div className="stats-section-title">😊 心情分布</div>
+        <div className="stats-section-title">😊 感受分布</div>
         <div className="mood-stats">
           {stats.moodDistribution.map(({ mood, count }) => {
             const info = MOODS.find(m => m.value === mood);

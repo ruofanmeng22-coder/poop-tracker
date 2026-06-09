@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { saveRecord as apiSaveRecord, generateId, formatDuration, getRecords, getAchievements, unlockAchievement, getStats } from '../utils/api';
-import { BRISTOL_SCALE, POOP_COLORS, MOODS, ACHIEVEMENTS } from '../utils/achievements';
+import { EXERCISE_TYPES, INTENSITY_LEVELS, MOODS, ACHIEVEMENTS } from '../utils/achievements';
 
 export default function CheckIn({ userId, onRecord, greeting }) {
   const [isTracking, setIsTracking] = useState(false);
@@ -9,8 +9,8 @@ export default function CheckIn({ userId, onRecord, greeting }) {
   const [elapsedMs, setElapsedMs] = useState(0);
   const [showDetail, setShowDetail] = useState(false);
   const [currentRecord, setCurrentRecord] = useState(null);
-  const [shape, setShape] = useState(4);
-  const [color, setColor] = useState('brown');
+  const [exerciseType, setExerciseType] = useState(1);
+  const [intensity, setIntensity] = useState('moderate');
   const [mood, setMood] = useState('good');
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
@@ -39,8 +39,8 @@ export default function CheckIn({ userId, onRecord, greeting }) {
       startTime: now,
       endTime: null,
       duration: 0,
-      shape: 4,
-      color: 'brown',
+      shape: 1,
+      color: 'moderate',
       mood: 'good',
       note: '',
       date: new Date().toISOString().split('T')[0],
@@ -59,7 +59,7 @@ export default function CheckIn({ userId, onRecord, greeting }) {
 
   const handleSave = async () => {
     setSaving(true);
-    const record = { ...currentRecord, shape, color, mood, note };
+    const record = { ...currentRecord, shape: exerciseType, color: intensity, mood, note };
 
     try {
       await apiSaveRecord(record);
@@ -90,8 +90,8 @@ export default function CheckIn({ userId, onRecord, greeting }) {
     setShowDetail(false);
     setCurrentRecord(null);
     setNote('');
-    setShape(4);
-    setColor('brown');
+    setExerciseType(1);
+    setIntensity('moderate');
     setMood('good');
     onRecord();
   };
@@ -100,12 +100,12 @@ export default function CheckIn({ userId, onRecord, greeting }) {
   const dismissAchievement = () => { setNewAchievements([]); };
 
   const getDurationComment = (seconds) => {
-    if (seconds < 60) return '⚡ 速战速决！';
-    if (seconds < 180) return '✨ 完美节奏！';
-    if (seconds < 300) return '👌 稳稳当当';
-    if (seconds < 600) return '🧘 慢慢来不急';
-    if (seconds < 1800) return '📖 带了手机吧？';
-    return '🤯 你没事吧？';
+    if (seconds < 300) return '⚡ 快速热身！';
+    if (seconds < 600) return '✨ 刚刚热起来！';
+    if (seconds < 1800) return '💪 不错的训练！';
+    if (seconds < 3600) return '🔥 认真锻炼了！';
+    if (seconds < 7200) return '🏋️ 铁人模式！';
+    return '🤯 超级硬核！';
   };
 
   return (
@@ -132,26 +132,26 @@ export default function CheckIn({ userId, onRecord, greeting }) {
       {!isTracking && !showDetail && (
         <div className="check-in-idle">
           <div className="poop-mascot">
-            <div className="poop-emoji-big">🚽</div>
-            <div className="poop-speech">{greeting || '该蹲坑啦！'}</div>
+            <div className="poop-emoji-big">💪</div>
+            <div className="poop-speech">{greeting || '该练了！'}</div>
           </div>
           <button className="btn-start" onClick={handleStart}>
-            <span className="btn-icon">💩</span>
+            <span className="btn-icon">🏋️</span>
             <span className="btn-text">开始打卡</span>
           </button>
-          <div className="check-in-hint">点击开始计时你的如厕时间</div>
+          <div className="check-in-hint">点击开始计时你的运动时间</div>
         </div>
       )}
 
       {isTracking && (
         <div className="check-in-tracking">
           <div className="tracking-animation">
-            <div className="poop-floating">💩</div>
-            <div className="poop-floating delay-1">💨</div>
-            <div className="poop-floating delay-2">🧻</div>
+            <div className="poop-floating">💪</div>
+            <div className="poop-floating delay-1">🔥</div>
+            <div className="poop-floating delay-2">💦</div>
           </div>
           <div className="timer-display">
-            <div className="timer-label">⏱️ 正在进行中...</div>
+            <div className="timer-label">⏱️ 运动进行中...</div>
             <div className="timer-value">{formatDuration(elapsed)}<span className="timer-ms">.{String(elapsedMs).padStart(2, '0')}</span></div>
           </div>
           <button className="btn-stop" onClick={handleStop}>
@@ -173,23 +173,23 @@ export default function CheckIn({ userId, onRecord, greeting }) {
           </div>
 
           <div className="detail-section">
-            <div className="detail-section-title">💩 便便形状（布里斯托量表）</div>
+            <div className="detail-section-title">🏃 运动类型</div>
             <div className="shape-selector">
-              {BRISTOL_SCALE.map(s => (
-                <button key={s.value} className={`shape-option ${shape === s.value ? 'active' : ''}`} onClick={() => setShape(s.value)} style={{ borderColor: shape === s.value ? s.color : undefined }}>
+              {EXERCISE_TYPES.map(s => (
+                <button key={s.value} className={`shape-option ${exerciseType === s.value ? 'active' : ''}`} onClick={() => setExerciseType(s.value)} style={{ borderColor: exerciseType === s.value ? s.color : undefined }}>
                   <span className="shape-emoji">{s.emoji}</span>
                   <span className="shape-label">{s.label}</span>
                 </button>
               ))}
             </div>
-            <div className="shape-desc">{BRISTOL_SCALE[shape - 1].desc}</div>
+            <div className="shape-desc">{EXERCISE_TYPES[exerciseType - 1].desc}</div>
           </div>
 
           <div className="detail-section">
-            <div className="detail-section-title">🎨 便便颜色</div>
+            <div className="detail-section-title">🔥 运动强度</div>
             <div className="color-selector">
-              {POOP_COLORS.map(c => (
-                <button key={c.value} className={`color-option ${color === c.value ? 'active' : ''}`} onClick={() => setColor(c.value)}>
+              {INTENSITY_LEVELS.map(c => (
+                <button key={c.value} className={`color-option ${intensity === c.value ? 'active' : ''}`} onClick={() => setIntensity(c.value)}>
                   <span className="color-dot" style={{ background: c.color }}></span>
                   <span className="color-label">{c.label}</span>
                 </button>
@@ -198,7 +198,7 @@ export default function CheckIn({ userId, onRecord, greeting }) {
           </div>
 
           <div className="detail-section">
-            <div className="detail-section-title">😊 心情</div>
+            <div className="detail-section-title">😊 运动感受</div>
             <div className="mood-selector">
               {MOODS.map(m => (
                 <button key={m.value} className={`mood-option ${mood === m.value ? 'active' : ''}`} onClick={() => setMood(m.value)}>
@@ -211,7 +211,7 @@ export default function CheckIn({ userId, onRecord, greeting }) {
 
           <div className="detail-section">
             <div className="detail-section-title">📝 备注</div>
-            <textarea className="note-input" value={note} onChange={e => setNote(e.target.value)} placeholder="今天蹲坑有什么特别的吗？吃了什么？..." rows={3} />
+            <textarea className="note-input" value={note} onChange={e => setNote(e.target.value)} placeholder="今天练了什么？感觉如何？..." rows={3} />
           </div>
 
           <div className="detail-actions">

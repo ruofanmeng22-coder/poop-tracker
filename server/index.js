@@ -75,9 +75,9 @@ app.post('/api/users', (req, res) => {
   const finalAvatar = avatar || '💩';
 
   try {
-    db.prepare('INSERT INTO users (id, name, avatar) VALUES (?, ?, ?)').run(id, name || '神秘屎者', finalAvatar);
-    console.log(`[USER] 新用户注册: ${name || '神秘屎者'} (ID: ${id}, Avatar: ${finalAvatar})`);
-    res.json({ id, name: name || '神秘屎者', avatar: finalAvatar });
+    db.prepare('INSERT INTO users (id, name, avatar) VALUES (?, ?, ?)').run(id, name || '健身达人', finalAvatar);
+    console.log(`[USER] 新用户注册: ${name || '健身达人'} (ID: ${id}, Avatar: ${finalAvatar})`);
+    res.json({ id, name: name || '健身达人', avatar: finalAvatar });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -354,5 +354,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`💩 拉屎打卡运行在 http://localhost:${PORT}`);
+  console.log(`💪 练了么运行在 http://localhost:${PORT}`);
 });
