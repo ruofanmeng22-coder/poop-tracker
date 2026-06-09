@@ -161,25 +161,3 @@ export const ACHIEVEMENTS = [
     check: (records) => records.filter(r => r.note && r.note.trim()).length >= 5,
   },
 ];
-
-export function checkAchievements(records, streak) {
-  const unlocked = JSON.parse(localStorage.getItem('poop-tracker-achievements') || '{}');
-  const newAchievements = [];
-
-  ACHIEVEMENTS.forEach(achievement => {
-    if (!unlocked[achievement.id] && achievement.check(records, streak)) {
-      unlocked[achievement.id] = new Date().toISOString();
-      newAchievements.push(achievement);
-    }
-  });
-
-  if (newAchievements.length > 0) {
-    localStorage.setItem('poop-tracker-achievements', JSON.stringify(unlocked));
-  }
-
-  return { unlocked, newAchievements };
-}
-
-export function getUnlockedAchievements() {
-  return JSON.parse(localStorage.getItem('poop-tracker-achievements') || '{}');
-}

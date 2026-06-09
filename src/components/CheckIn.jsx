@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { saveRecord as apiSaveRecord, generateId, formatDuration, getRecords, getAchievements, unlockAchievement } from '../utils/api';
+import { saveRecord as apiSaveRecord, generateId, formatDuration, getRecords, getAchievements, unlockAchievement, getStats } from '../utils/api';
 import { BRISTOL_SCALE, POOP_COLORS, MOODS, ACHIEVEMENTS } from '../utils/achievements';
 
 export default function CheckIn({ userId, onRecord, greeting }) {
@@ -66,12 +66,13 @@ export default function CheckIn({ userId, onRecord, greeting }) {
 
       const allRecords = await getRecords({ userId });
       const unlockedData = await getAchievements(userId);
+      const statsData = await getStats(userId);
       const unlocked = {};
       unlockedData.forEach(a => { unlocked[a.id] = a.unlockedAt; });
 
       const newlyUnlocked = [];
       for (const achievement of ACHIEVEMENTS) {
-        if (!unlocked[achievement.id] && achievement.check(allRecords)) {
+        if (!unlocked[achievement.id] && achievement.check(allRecords, statsData.streak)) {
           const now = new Date().toISOString();
           await unlockAchievement(achievement.id, userId, now);
           newlyUnlocked.push(achievement);
